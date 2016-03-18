@@ -1,0 +1,167 @@
+Technical information documenting the Banjo-Tooie EEPROM data storage.
+Compiled by Iconoclast.
+Note:  This is not a user's manual!  See the MANUAL help text for help
+       with program usage.  This file is for bit-wise documentation.
+
+Let `global_data` be a pointer to one of two 256-byte chunks of EEPROM.
+The first possibility is EEPROM + 0x000; the second is EEPROM + 0x080.
+
+Rareware seems to like alternating and swapping which one's the valid
+block and which one's not to throw people off examining changed bit
+properties in a hex editor.  The way to tell which one the game will
+read from next time is simply by reading the very first byte.
+
+if (EEPROM[0x080] == 0x08)
+    global_data == EEPROM + 0x080;
+else
+    global_data == EEPROM + 0x000;
+
+Everything else from EEPROM[0x100] to EEPROM[0x7FF] is all stuff used by
+the game save files' progress when playing the game normally.
+
+/* magic number */
+global_data[0x00]  = 0b00001000; /* Anything else is invalid. */
+
+/* WIDESCREEN MODE */
+global_data[0x01] &= 0b11111101; /* global_data[0x01]1 <-- 0 */
+global_data[0x01] |= 0b00000000; /* 0 :: off */
+global_data[0x01] |= 0b00000010; /* 1 :: on */
+
+/* SCREEN ADJUSTMENT */
+global_data[0x01] ^= 0b00000001; /* unknown/unused bit 0? */
+global_data[0x01] &= 0b00000011; /* global_data[0x01]7..2 <-- 0 */
+global_data[0x02] &= 0b11000000; /* global_data[0x02]5..0 <-- 0 */
+global_data[0x01] |= 0b??????00; /* 0 to 63 pixels off from the left */
+global_data[0x02] |= 0b00??????; /* 0 to 63 pixels off from the top */
+global_data[0x02] ^= 0b11000000; /* unknown/unused bits 7..6? */
+
+/* SPEAKER MODE */
+global_data[0x02] &= 0b00111111; /* global_data[0x02]7..6 <-- 0 */
+global_data[0x02] |= 0b00000000; /* 0 :: MONO */
+global_data[0x02] |= 0b01000000; /* 1 :: STEREO */
+global_data[0x02] |= 0b10000000; /* 2 :: HEADPHONE */
+global_data[0x02] |= 0b11000000; /* 3 :: DOLBY SURROUND */
+
+/* BOSSES */
+global_data[0x03] |= 0b00000001; /* KLUNGO 1 */
+global_data[0x03] |= 0b00000010; /* KLUNGO 2 */
+global_data[0x03] |= 0b00000100; /* KLUNGO 3 */
+global_data[0x03] |= 0b00001000; /* TARGITZAN */
+global_data[0x03] |= 0b00010000; /* OLD KING COAL */
+global_data[0x03] |= 0b00100000; /* MR. PATCH */
+global_data[0x03] |= 0b01000000; /* LORD WOO FAK FAK */
+global_data[0x03] |= 0b10000000; /* TERRY */
+global_data[0x04] |= 0b00000001; /* WELDAR */
+global_data[0x04] |= 0b00000010; /* CHILLY WILLY */
+global_data[0x04] |= 0b00000100; /* CHILLY BILLI */
+global_data[0x04] |= 0b00001000; /* MINGY JONGO */
+global_data[0x04] |= 0b00010000; /* HAG 1 */
+
+/* unknown, but automatically set */
+global_data[0x04] |= 0b11100000;
+global_data[0x05] |= 0b11111111;
+global_data[0x06] |= 0b00000111;
+
+/* MINI-GAMES */
+global_data[0x06] |= 0b00001000; /* MAYAN KICKBALL (QUARTERFINAL) */
+global_data[0x06] |= 0b00010000; /* MAYAN KICKBALL (SEMIFINAL) */
+global_data[0x06] |= 0b00100000; /* MAYAN KICKBALL (FINAL) */
+global_data[0x06] |= 0b01000000; /* ORDNANCE STORAGE */
+global_data[0x06] |= 0b10000000; /* DODGEMS CHALLENGE (1-ON-1) */
+global_data[0x07] |= 0b00000001; /* DODGEMS CHALLENGE (2-ON-1) */
+global_data[0x07] |= 0b00000010; /* DODGEMS CHALLENGE (3-ON-1) */
+global_data[0x07] |= 0b00000100; /* HOOP HURRY CHALLENGE */
+global_data[0x07] |= 0b00001000; /* BALLOON BURST CHALLENGE */
+global_data[0x07] |= 0b00010000; /* SAUCER OF PERIL RIDE */
+global_data[0x07] |= 0b00100000; /* MINI-SUB CHALLENGE */
+global_data[0x07] |= 0b01000000; /* CHOMPA'S BELLY */
+global_data[0x07] |= 0b10000000; /* CLINKER'S CAVERN */
+global_data[0x08] |= 0b00000001; /* TWINKLIES PACKING */
+global_data[0x08] |= 0b00000010; /* COLOSSEUM KICKBALL (QUARTERFINAL) */
+global_data[0x08] |= 0b00000100; /* COLOSSEUM KICKBALL (SEMIFINAL) */
+global_data[0x08] |= 0b00001000; /* COLOSSEUM KICKBALL (FINAL) */
+global_data[0x08] |= 0b00010000; /* POT O' GOLD */
+global_data[0x08] |= 0b00100000; /* TRASH CAN GERMS */
+global_data[0x08] |= 0b01000000; /* ZUBBAS' HIVE */
+global_data[0x08] |= 0b10000000; /* TOWER OF TRAGEDY QUIZ (ROUND 1) */
+global_data[0x09] |= 0b00000001; /* TOWER OF TRAGEDY QUIZ (ROUND 2) */
+global_data[0x09] |= 0b00000010; /* TOWER OF TRAGEDY QUIZ (ROUND 3) */
+
+/* CINEMA */
+global_data[0x09] |= 0b00000100; /* OPENING STORY */
+global_data[0x09] |= 0b00001000; /* KING JINGALING GETS ZAPPED */
+global_data[0x09] |= 0b00010000; /* BOTTLES AND JINGALING RESTORED */
+global_data[0x09] |= 0b00100000; /* GRUNTY DEFEATED */
+global_data[0x09] |= 0b01000000; /* CREDITS */
+global_data[0x09] |= 0b10000000; /* CHARACTER PARADE */
+
+/* seemingly unused */
+global_data[0x0A] &= 0b11111111; /* 0x00 in 100% finished saves */
+
+/*
+ * likely used, but unconfirmed
+ * I would have to say these two bytes contain other special global flags,
+ * such as whether multiplayer jinjo was unlocked, whether or not a player
+ * has already entered the PLAYITAGAINSON code in the Mayahem code chamber,
+ * possibly even some old stuff that was going to get used with the Banjo-
+ * Kazooie Stop-'N-Swop eggs mystery or other 64DD things?
+ */
+global_data[0x0B];
+global_data[0x0C];
+
+/* nothing but trailing zeros as far as I can tell */
+global_data[0x0D];
+/* ... */
+global_data[0x77];
+
+/* terminal 64-bit checksum */
+*(__int64 *)(global_data + 0x78) &= 0xFFFFFFFFFFFFFFFF;
+
+Let `game` be a pointer to one of four 448-byte chunks of EEPROM.
+The four possibilities are:
+  * EEPROM + 0x100
+  * EEPROM + 0x2C0
+  * EEPROM + 0x480
+  * EEPROM + 0x640
+
+Although there is enough space for four game save files, there are only three
+which can actually be accessed through the game.  The fourth is used for
+swapping with the last-updated game save file and destroying the old copy in an
+attempt to break save editors or views in a hex editor.  The first 64-bit block,
+from game[0x000] to game[0x007], is destroyed to 0 when updating a game save
+file over to a fourth, backup slot.
+
+The 8-bit octet at game[0x00A] stores what game save file number the data is
+for (either 0x01, 0x02, or 0x03).
+
+Since these chunks of data are so much larger to explore, what has been found
+about them is essentially covered in the C source code to the save-editing
+application.  A shameless dump of unused notes that didn't make their way into
+the save editor follows:
+
+game[0x0E5] |= 0x01; /* Klungo defeated */
+game[0x0E9] |= 0x80; /* met the fish under the boulder */
+game[0x0C6] |= 0x10; /* mayahem honeycomb */
+
+game[0x0C0] == Jinjos?
+
+game[0x08F] |= 0b00010000; /* informed of FEATHERS cheat */
+game[0x08F] |= 0b00000100; /* Cheato introduces code chamber podium */
+game[0x08F] |= 0b00001000; /* Cheato code chamber instructions */
+game[0x08F] |= 0b00100000; /* informed of EGGS cheat */
+game[0x08F] |= 0b01000000; /* informed of FALLPROOF cheat */
+game[0x08F] |= 0b10000000; /* informed of HONEYBACK cheat */
+game[0x090] |= 0b00000001; /* informed of JUKEBOX cheat */
+game[0x090] |= 0b00000010; 1. DOUBLE MAXIMUM FEATHERS
+game[0x090] |= 0b00000100; 2. DOUBLE MAXIMUM EGGS
+game[0x090] |= 0b00001000; 3. NO ENERGY LOSS FROM FALLING
+game[0x090] |= 0b00010000; 4. AUTOMATIC ENERGY REGAIN
+game[0x090] |= 0b00100000; 5. JOLLY'S JUKEBOX
+game[0x090] |= 0b01000000; /* informed of GETJIGGY cheat */
+game[0x090] |= 0b10000000; 6. JIGGYWIGGY TEMPLE SIGNPOSTS
+game[0x091] |= 0b00000001; 7. FAST BANJO
+game[0x091] |= 0b00000010; 8. FAST BADDIES
+game[0x091] |= 0b00000100; 9. NO ENERGY OR AIR LOSS
+game[0x08A] |= 0b00000100; 10. INFINITE EGGS AND FEATHERS
+game[0x08B] |= 0b00001000; 11. OPEN UP ALL WORLD DOORS
+game[0x091] |= 0b00100000; 12. ENABLE HOMING EGGS

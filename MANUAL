@@ -1,0 +1,346 @@
+This is a terminal (command-line, console) application and does not need a
+graphical user interface (GUI) to interact fully.  For Microsoft Windows users
+who are unfamiliar with the command shell, simply edit and run the `b7.cmd`
+batch file in a text editor to execute any of the save-editing options.  This
+file contains some key examples to editing aspects of save data but not all of
+them.  The rest of this MANUAL will go into detail about each supported option.
+
+The simple command syntax for invoking this program:
+`b7 <filepath> [options]`
+... where b7 is the executable's name, <filepath> is a required parameter to
+refer to the location of the EEPROM save file, and [options] are optional
+actions to take to edit the game save data, covered throughout this document.
+
+Here is an example for modifying the amount of eggs in Banjo's inventory.
+`b7 nb7e.eep -e eggs 100`
+`b7 nb7e.eep -e fire 50`
+`b7 nb7e.eep -e grenade 25`
+`b7 nb7e.eep -e ice 50`
+`b7 nb7e.eep -e clockwork 10`
+This is the most verbose way to update the eggs amounts, as any syntax errors or
+other problems with invoking the program can be displayed on the basis of
+individually specified actions.
+
+The problem with the above method is performance.  It takes the operating system
+much time to allocate for and call the save-editing executable 5 times (and even
+more time to keep setting up and destroying the file-loading stream), so it can
+make the difference of seconds, or even possibly minutes, of execution time to
+instead merge all of the options into a single command, like so:
+`b7 nb7e.eep -e eggs 100 -e fire 50 -e grenade 25 -e ice 50 -e clockwork 10`
+
+When editing save data for game save files, the save editor will always target
+the game last saved.  If game 2 was last updated by the "Banjo-Tooie" ROM, this
+program will detect that as the most secure choice and apply actions to that.
+
+It is not recommended to:
+    1.  Put all save-editing actions on their own line, in a massive script.
+    2.  Use actions pertinent to game save data when all save files are empty.
+    3.  Use the -x or -X options to try to edit an exact game save file.
+    4.  Compile the source code to this program as a 32-bit executable or less.
+        (It will work but issue warnings.)
+
+The rest of this document will explain the options for editing save data.
+
+--------------------------------------------------------------------------------
+Option:  -B
+Syntax:  b7 %filepath% -B <flags>
+Effect:  which bosses Banjo has unlocked for replay mode
+
+<flags> -- A little-endian string of up to thirteen binary digits signifying
+           which bosses Banjo is able to replay in the game's main menu.
+0000000000001:  KLUNGO 1
+0000000000010:  KLUNGO 2
+0000000000100:  KLUNGO 3
+0000000001000:  TARGITZAN
+0000000010000:  OLD KING COAL
+0000000100000:  MR. PATCH
+0000001000000:  LORD WOO FAK FAK
+0000010000000:  TERRY
+0000100000000:  WELDAR
+0001000000000:  CHILLY WILLY
+0010000000000:  CHILLY BILLI
+0100000000000:  MINGY JONGO
+1000000000000:  HAG 1
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -C
+Syntax:  b7 %filepath% -C <flags>
+Effect:  which cinematic sequences Banjo has unlocked for replay mode
+
+<flags> -- A little-endian string of six binary digits signifying which
+           cinematic sequences Banjo is able to replay in the game's main menu.
+000001:  OPENING STORY
+000010:  KING JINGALING GETS ZAPPED
+000100:  BOTTLES AND JINGALING RESTORED
+001000:  GRUNTY DEFEATED
+010000:  CREDITS
+100000:  CHARACTER PARADE
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -c
+Syntax:  b7 %filepath% -c <flags>
+Effect:  standard in-game cheat codes activated through the Mayahem Temple code
+         chamber (not to be confused with which cheats were simply told to Banjo
+         but not yet activated in the code chamber)
+
+<flags> -- A little-endian string of twelve binary digits signifying whether
+           each of the twelve in-game cheats are set on or off.
+000000000000:  no in-game cheat codes enabled
+000000000001:  DOUBLE MAXIMUM FEATHERS # FEATHERS
+000000000010:  DOUBLE MAXIMUM EGGS # EGGS
+000000000100:  NO ENERGY LOSS FROM FALLING # FALLPROOF
+000000001000:  AUTOMATIC ENERGY REGAIN # HONEYBACK
+000000010000:  JOLLY'S JUKEBOX # JUKEBOX
+000000100000:  JIGGYWIGGY TEMPLE SIGNPOSTS # GETJIGGY
+000001000000:  FAST BANJO # CHEATO SUPERBANJO
+000010000000:  FAST BADDIES # CHEATO SUPERBADDY
+000100000000:  NO ENERGY OR AIR LOSS # CHEATO HONEYKING
+001000000000:  INFINITE EGGS AND FEATHERS # CHEATO NESTKING
+010000000000:  OPEN UP ALL WORLD DOORS # CHEATO JIGGYWIGGYSPECIAL
+100000000000:  ENABLE HOMING EGGS # HOMING
+111111111111:  all in-game cheat codes enabled
+
+Note that this does not provide the ability to switch the cheat codes on or off
+by using the in-game cheats list in the Mayahem Temple code chamber, nor does it
+provide the ability to manually unlock the cheat codes in said list by shooting
+the stone letters to spell out the code (e.g., can spell "FEATHERS" to unlock
+the double maximum feathers cheat without giving 5 pages to Cheato first).  If
+that approach is desired more than the internal, forceful one here, it may get
+implemented in a later command-line option (possibly "-C", if not already taken
+by the CINEMA global settings' replay mode).
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -e
+Syntax:  b7 %filepath% -e <mode> <source>
+Effect:  amount of eggs in stock inventory
+
+<mode> -- A case-insensitive string of text beginning with a special letter:
+"B[LUE]" or "E[GGS]":  modifying amount of blue eggs
+"F[IRE]":  modifying amount of fire eggs
+"G[RENADE]":  modifying amount of grenade eggs
+"I[CE]":  modifying amount of ice eggs
+"C[LOCKWORK-KAZOOIE]":  modifying amount of clockwork-Kazooie eggs
+
+<source> -- A decimal integer between -32768 to +32767, signifying how many eggs
+            of the type, specified by <mode>, that Banjo has.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -f
+Syntax:  b7 %filepath% -f <mode> <source>
+Effect:  amount of feathers in stock inventory
+
+<mode> -- A case-insensitive string of text beginning with one of two letters:
+"R[ED]":  modifying amount of red feathers
+"G[OLD]":  modifying amount of gold feathers
+
+<source> -- A decimal integer between -32768 to +32767, signifying how many
+            feathers of the type, specified by <mode>, that Banjo has.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -g
+Syntax:  b7 %filepath% -g <source>
+Effect:  Banjo's active possession of Glowbos (not to be confused with which
+         Glowbos were collected in each of the worlds)
+
+<source> -- A decimal integer between -32768 to +32767, signifying how many
+            Glowbos Banjo has (either for Mumbo Jumbo or Humba Wumba)
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -h
+Syntax:  b7 %filepath% -h <source>
+Effect:  Banjo's active possession of extra honeycomb pieces (not to be confused
+         with which extra honeycomb pieces were collected in each of the worlds)
+
+<source> -- A decimal integer between -32768 to +32767, signifying how many
+            extra honeycomb pieces Banjo has (for extra health from Honey B)
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -j
+Syntax:  b7 %filepath% -j <source>
+Effect:  Banjo's collection of the 90 jigsaw pieces throughout the game
+
+<source> -- A Boolean digit, either 0 or 1, signifying whether Banjo has all or
+            none of the game's 90 "jiggies".
+
+Note:  Due to the vast amount of labeling needed for all 90 jiggies, it was too
+       tedious to immediately implement the ability to mark an exact one as
+       having been collected by Banjo or not, and the official names and numbers
+       of the jiggies for each world as given on the signposts in Jiggywiggy's
+       temple unfortunately did not correspond to the actual EEPROM bit order.
+0:  Banjo has 0 jiggies.
+1:  Banjo has all 90 of the jiggies.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -K
+Syntax:  b7 %filepath% -K <source>
+Effect:  whether or not Klungo has spotted Banjo coming in Spiral Mountain
+
+<source> -- A Boolean digit signifying whether Klungo has spotted Banjo yet.
+0:  Klungo is waiting outside the digger tunnel hole in Spiral Mountain.
+1:  Klungo has seen Banjo coming and receded into the digger tunnel.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -M
+Syntax:  b7 %filepath% -M <flags>
+Effect:  which cinematic sequences Banjo has unlocked for replay mode
+
+<flags> -- A little-endian string of up to twenty-three binary digits signifying
+           which mini-games Banjo is able to replay in the game's main menu.
+00000000000000000000001:  MAYAN KICKBALL (QUARTERFINAL)
+00000000000000000000010:  MAYAN KICKBALL (SEMIFINAL)
+00000000000000000000100:  MAYAN KICKBALL (FINAL)
+00000000000000000001000:  ORDNANCE STORAGE
+00000000000000000010000:  DODGEMS CHALLENGE (1-ON-1)
+00000000000000000100000:  DODGEMS CHALLENGE (2-ON-1)
+00000000000000001000000:  DODGEMS CHALLENGE (3-ON-1)
+00000000000000010000000:  HOOP HURRY CHALLENGE
+00000000000000100000000:  BALLOON BURST CHALLENGE
+00000000000001000000000:  SAUCER OF PERIL RIDE
+00000000000010000000000:  MINI-SUB CHALLENGE
+00000000000100000000000:  CHOMPA'S BELLY
+00000000001000000000000:  CLINKER'S CAVERN
+00000000010000000000000:  TWINKLIES PACKING
+00000000100000000000000:  COLOSSEUM KICKBALL (QUARTERFINAL)
+00000001000000000000000:  COLOSSEUM KICKBALL (SEMIFINAL)
+00000010000000000000000:  COLOSSEUM KICKBALL (FINAL)
+00000100000000000000000:  POT O' GOLD
+00001000000000000000000:  TRASH CAN GERMS
+00010000000000000000000:  ZUBBAS' HIVE
+00100000000000000000000:  TOWER OF TRAGEDY QUIZ (ROUND 1)
+01000000000000000000000:  TOWER OF TRAGEDY QUIZ (ROUND 2)
+10000000000000000000000:  TOWER OF TRAGEDY QUIZ (ROUND 3)
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -m
+Syntax:  b7 %filepath% -m <source>
+Effect:  Banjo's repertoire of moves and techniques during play
+
+<source> -- A Boolean digit, either 0 or 1, signifying whether or not Banjo
+            knows all the moves and techniques there are to be learned.
+
+Note:  Due to the vast amount of checking and reversing needed to properly label
+       all of the moves, this program has yet to provide the ability to mark an
+       exact move as learned or not.  Be warned, also, that the save data
+       dictates moves that Banjo did or did not learn, not only from the current
+       game, but the previous ("Banjo-Kazooie") as well.  Invoking -m 0, then,
+       will disable most of the things Banjo could do in the previous game, too.
+0:  Banjo has no moves from either "Banjo-Kazooie" or "Banjo-Tooie" but can
+    still walk, run, adjust the camera, jump, paddle in water, and other basics.
+1:  Banjo has learned all of the new moves in this game from Jamjars as well as
+    other sources.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -n
+Syntax:  b7 %filepath% -n <source>
+Effect:  Banjo's collection of the 900 musical notes throughout the game
+
+<source> -- A Boolean digit, either 0 or 1, signifying whether to mark the
+            corresponding musical note or treble cleff objects as collected.
+
+Note:  Due to the vast amount of labeling needed for all of the musical note
+       objects, it was too tedious to immediately implement a selective power
+       to say Banjo does or does not have this or that exact musical note object
+       collected already.  As such, the following are the only current options.
+0:  Banjo has no musical notes collected.
+1:  Banjo has all 900 musical notes.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -O
+Syntax:  b7 %filepath% -O <x> <y>
+Effect:  origin offset of the adjusted game screen
+
+<x> -- A decimal integer from 0 to 63, in pixels.
+<y> -- A decimal integer from 0 to 63, in pixels.
+Anything less than zero is clamped to 0; anything 64 or more is clamped to 64.
+
+Placing the game screen on a (x, y) coordinate plane, it is in quadrant IV;
+i.e., the origin point (0, 0) basing the offset is the uppermost, leftmost one.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -p
+Syntax:  b7 %filepath% -p <source>
+Effect:  Banjo's active possession of Cheato's pages (not to be confused with
+         which pages were collected in each of the worlds)
+
+<source> -- A decimal integer between -32768 to +32767, signifying how many
+            of Cheato's torn pages Banjo has (for unlocking cheat codes)
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -S
+Syntax:  b7 %filepath% -S <mode>
+Effect:  sound output speaker mode
+
+<mode> -- A case-insensitive string of text beginning with one of four letters:
+"M[ono]":  monaural audio
+"S[tereo]":  dual-speaker audio
+"H[eadphone]":  for headphones
+"D[olby Surround]":  w/e that's supposed to mean!
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -s
+Syntax:  b7 %filepath% -s <flags>
+Effect:  access to Jamjar's silo shortcut tunnels
+
+<flags> -- A little-endian string of eight binary digits, signifying whether
+           each of Jamjars' silos is accessible to Banjo.
+00000001:  JINJO VILLAGE
+00000010:  WOODED HOLLOW
+00000100:  PLATEAU
+00001000:  PINE GROVE
+00010000:  CLIFF TOP
+00100000:  WASTELAND
+01000000:  QUAGMIRE
+10000000:  just whether or not Jamjars has introduced this feature to Banjo yet
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -W
+Syntax:  b7 %filepath% -W <source>
+Effect:  16:9 widescreen mode setting
+
+<source> -- A Boolean digit signifying whether to apply 16:9 video mode.
+0:  using normal 4:3 aspect ratio
+1:  using widescreen 16:9 ratio
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -X
+Syntax:  b7 %filepath% -X <addr> <source>
+Effect:  the 8-bit <source> stored at absolute EEPROM address <addr>
+         EEPROM[<addr> & 0x000007FF] = <source> & 0x000000FF
+
+<addr> -- A hexadecimal integer, optionally preceded by a `0x` or `0X`.
+<source> -- An integer, optionally preceded by a `0` for octal interpretation,
+            a digit from `1` to `9` for decimal interpretation, or a `0x` for
+            hexadecimal interpretation.  Unary prefixing (`+`, `-`) is allowed.
+Not recommended for use, due partly to the volatility of Rareware's backup
+security.  It mostly exists as an extension to raw hex-editing of the save file.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Option:  -x
+Syntax:  b7 %filepath% -x <addr> <bit_no> <source>
+Effect:  the 1-bit <source> stored at bit <bit_no> of EEPROM byte address <addr>
+         EEPROM[<addr> & 0x000007FF]<bit_no> = <source> & 1
+
+<addr> -- A hexadecimal integer, optionally preceded by a `0x` or `0X`.
+<bit_no> -- One octal digit from 0 to 7, numbering the bit offset into byte.
+<source> -- A Boolean digit, either 0 or 1, to be masked onto the target byte.
+Not recommended for use, due partly to the volatility of Rareware's backup
+security.  It mostly exists as an extension to raw hex-editing of the save file.
+--------------------------------------------------------------------------------
