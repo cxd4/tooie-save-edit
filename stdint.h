@@ -16,34 +16,51 @@
 #ifndef _STDINT_H_
 #define _STDINT_H_
 
+#include <limits.h>
+
 /*
  * Microsoft LLP64 system not compliant with ANSI C89
  */
 #ifdef _MSC_VER
-typedef __int64                 i64;
 typedef signed __int64          s64;
 typedef unsigned __int64        u64;
-typedef __int32                 i32;
 typedef signed __int32          s32;
 typedef unsigned __int32        u32;
 #else
-typedef long                    i64;
-typedef signed long             s64;
-typedef unsigned long           u64;
-typedef int                     i32;
+
+#if (INT_MIN < -2147483647 && INT_MAX >= +2147483647)
 typedef signed int              s32;
 typedef unsigned int            u32;
+#else
+typedef signed long             s32;
+typedef unsigned long           u32;
+#endif
+
+#if (LONG_MIN < -9223372036854775807 && LONG_MAX >= +9223372036854775807)
+typedef signed long             s64;
+typedef unsigned long           u64;
+#elif defined(INT_LEAST64_MIN) || defined(INT_LEAST64_MAX)
+typedef int_least64_t           s64;
+typedef uint_least64_t          u64; /* POSIX's stdint.h, adopted in ISO C99 */
+#else
+typedef signed long long        s64;
+typedef unsigned long long      u64; /* fallback to require C99 support */
+#endif
+
 #endif
 
 /*
  * If a short integer is not 16 bits, nothing is, and the above #errors.
  */
-typedef short                   i16;
 typedef signed short            s16;
 typedef unsigned short          u16;
-typedef char                    i8;
 typedef signed char             s8;
 typedef unsigned char           u8;
+
+typedef char                    i8;
+typedef s16                     i16;
+typedef s32                     i32;
+typedef s64                     i64;
 
 typedef union {
     i8 B[2];
