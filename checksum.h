@@ -54,7 +54,6 @@ enum {
     RA = 31
 };
 #define FP      S8
-__W64 GPR[32];
 
 extern char checksum_actual[28];
 extern char checksum_stored[28];

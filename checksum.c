@@ -21,6 +21,8 @@
 #include "checksum.h"
 #include "stdint.h"
 
+static __W64 GPR[32];
+
 static void addiu  (const int rd, const int rs, const u16 immediate);
 static void addu   (const int rd, const int rs, const int rt);
 static void andi   (const int rd, const int rs, const u16 immediate);
